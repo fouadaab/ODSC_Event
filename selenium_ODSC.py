@@ -87,10 +87,13 @@ class connect:
     def download2drive(self,file_dl):
         
         format_ = 'bestvideo+bestaudio'
+        error_code_404 = 'ERROR: Unable to download webpage'
+        error_code_noplaylist = 'This playlist does not exist'
+
         if subprocess.call("test -e '{}'".format(file_dl), shell=True) == 1:
             subprocess.call("touch '{}'".format(file_dl), shell=True)
         track_dl = [line.strip() for line in open(f"./{file_dl}").readlines()]
-            
+
         for file,link in zip(self.files,self.links):
 
             if link in track_dl:
@@ -100,28 +103,33 @@ class connect:
 
             path = f"~/sharedrives/ODSC_Event/Material/{file}/".replace(' ','_').replace('&','and').replace('(','').replace(')','')
             
-            bashCommand_mkdir = f'mkdir {path}'
             bashCommand_dl = f'youtube-dl -f {format_} {link}'
+            bashCommand_mkdir = f'mkdir {path}'
             bashCommand_mv = f'mv *.mp4 {path}'
             
-            self.commander(bashCommand_mkdir)
-            self.commander(bashCommand_dl)
-            self.commander(bashCommand_mv)
+            _,error = self.commander(bashCommand_dl)
             
-            print(f'Copied downloaded file into {path} \n')
+            if error_code_404.encode() in error or error_code_noplaylist.encode() in error:
+                print('Unable to download file - Skipping this link \n')
+                continue
+            else:
+                _,_ = self.commander(bashCommand_mkdir)
+                _,_ = self.commander(bashCommand_mv)
+                print(f'Copied downloaded file into {path} \n')
+
+                file = open(file_dl,"a")
+                file.write(f'\n{link}')
+                file.close()
+            
             clear_output()
-            
-            file = open(file_dl,"a")
-            file.write(f'\n{link}')
-            file.close()
             
     def commander(self, command):
         
         print(f'Running Command: {command}')
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         output, error = process.communicate()
-        
-        return output
+
+        return output, error
             
     def close(self):
         
