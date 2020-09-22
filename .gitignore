@@ -1,3 +1,8 @@
+.gitignore
 *credentials*
-*mp4
+*.mp4
+*m4a*
 *.dat
+__*__
+.*
+*.log
