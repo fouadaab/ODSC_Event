@@ -83,7 +83,8 @@ class connect:
             self.links.append(play.get_attribute('data-url').replace('?autoplay=1',''))
             if idx+1<=5:
                 print(f"{idx}. {play.get_attribute('data-title')} - {play.get_attribute('data-url').replace('?autoplay=1','')} \n")
-                
+        print(f'... \nTotal number of downloadable links: {idx-1} \n')
+
     def download2drive(self,file_dl):
         
         format_ = 'bestvideo+bestaudio'
